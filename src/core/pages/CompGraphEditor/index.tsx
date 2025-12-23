@@ -1,5 +1,5 @@
 import { Grid, Container, Title, Button, Group, Stack, ActionIcon } from '@mantine/core'
-import { IconLink, IconSun, IconMoon } from '@tabler/icons-react'
+import { IconLink, IconSun, IconMoon, IconCheck } from '@tabler/icons-react'
 import { useState } from 'react'
 import { useService } from './service'
 import { ComponentForm } from './features/ComponentForm'
@@ -9,7 +9,7 @@ import { deleteComponent } from './models/componentGraph'
 import { useColorScheme } from '@/core/common/utils/colorScheme'
 
 export const CompGraphEditor = () => {
-  const { graph, setGraph, copyShareUrl } = useService()
+  const { graph, setGraph, copyShareUrl, copied } = useService()
   const [editingComponentId, setEditingComponentId] = useState<string | undefined>(undefined)
   const { colorScheme, toggleColorScheme } = useColorScheme()
 
@@ -41,8 +41,12 @@ export const CompGraphEditor = () => {
               >
                 {colorScheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}
               </ActionIcon>
-              <Button leftSection={<IconLink size={18} />} onClick={copyShareUrl}>
-                Copy Share URL
+              <Button
+                leftSection={copied ? <IconCheck size={18} /> : <IconLink size={18} />}
+                onClick={copyShareUrl}
+                color={copied ? 'green' : undefined}
+              >
+                {copied ? 'Copied!' : 'Copy Share URL'}
               </Button>
             </Group>
           </Group>

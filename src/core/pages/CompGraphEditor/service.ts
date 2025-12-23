@@ -12,6 +12,7 @@ export const useService = () => {
     }
     return { components: [] }
   })
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const compressed = compressGraph(graph)
@@ -20,14 +21,17 @@ export const useService = () => {
     window.history.replaceState({}, '', url.toString())
   }, [graph])
 
-  const copyShareUrl = () => {
+  const copyShareUrl = async () => {
     const url = window.location.href
-    navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1000)
   }
 
   return {
     graph,
     setGraph,
     copyShareUrl,
+    copied,
   }
 }
