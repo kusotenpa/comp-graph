@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import path from 'path'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: 'src',
-  base: '/comp-graph/',
+  base: command === 'build' ? '/comp-graph/' : '/',
   publicDir: '../public',
   plugins: [
     TanStackRouterVite({
@@ -23,4 +23,4 @@ export default defineConfig({
     outDir: '../dist',
     emptyOutDir: true,
   },
-})
+}))
