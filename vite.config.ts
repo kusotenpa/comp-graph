@@ -5,6 +5,7 @@ import path from 'path'
 
 export default defineConfig({
   root: 'src',
+  base: '/comp-graph/',
   publicDir: '../public',
   plugins: [
     TanStackRouterVite({
