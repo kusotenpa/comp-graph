@@ -1,6 +1,6 @@
 import { Grid, Container, Title, Button, Group, Stack, ActionIcon } from '@mantine/core'
 import { IconLink, IconSun, IconMoon, IconCheck } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useService } from './service'
 import { ComponentForm } from './features/ComponentForm'
 import { ComponentList } from './features/ComponentList'
@@ -12,9 +12,11 @@ export const CompGraphEditor = () => {
   const { graph, setGraph, copyShareUrl, copied } = useService()
   const [editingComponentId, setEditingComponentId] = useState<string | undefined>(undefined)
   const { colorScheme, toggleColorScheme } = useColorScheme()
+  const sidebarRef = useRef<HTMLDivElement>(null)
 
   const handleEdit = (componentId: string) => {
     setEditingComponentId(componentId)
+    sidebarRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDelete = (componentId: string) => {
@@ -51,7 +53,7 @@ export const CompGraphEditor = () => {
             </Group>
           </Group>
         </Grid.Col>
-        <Grid.Col span={4} style={{ height: 'calc(100vh - 100px)', overflow: 'auto' }}>
+        <Grid.Col span={4} style={{ height: 'calc(100vh - 100px)', overflow: 'auto' }} ref={sidebarRef}>
           <Stack>
             <ComponentForm
               graph={graph}
@@ -63,7 +65,7 @@ export const CompGraphEditor = () => {
           </Stack>
         </Grid.Col>
         <Grid.Col span={8} style={{ height: 'calc(100vh - 100px)' }}>
-          <GraphVisualizer graph={graph} />
+          <GraphVisualizer graph={graph} onNodeClick={handleEdit} />
         </Grid.Col>
       </Grid>
     </Container>

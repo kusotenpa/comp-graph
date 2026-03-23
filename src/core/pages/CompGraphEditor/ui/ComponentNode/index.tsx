@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Handle, Position } from '@xyflow/react'
 import { Paper, Title, Text, Stack } from '@mantine/core'
 import type { FlowNodeData } from '@/core/common/utils/graphLayout'
@@ -11,6 +11,11 @@ type Props = {
 export const ComponentNode = memo(({ data }: Props) => {
   const { colorScheme } = useColorScheme()
   const isDark = colorScheme === 'dark'
+  const [hovered, setHovered] = useState(false)
+
+  const bgColor = isDark
+    ? hovered ? 'var(--mantine-color-dark-4)' : 'var(--mantine-color-dark-5)'
+    : hovered ? 'var(--mantine-color-gray-0)' : undefined
 
   return (
     <>
@@ -19,10 +24,14 @@ export const ComponentNode = memo(({ data }: Props) => {
         p="md"
         shadow={isDark ? undefined : 'sm'}
         withBorder
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
           minWidth: 250,
           borderLeft: data.color ? `4px solid var(--mantine-color-${data.color}-6)` : undefined,
-          backgroundColor: isDark ? 'var(--mantine-color-dark-5)' : undefined,
+          backgroundColor: bgColor,
+          cursor: 'pointer',
+          transition: 'background-color 0.15s ease',
         }}
       >
         <Stack gap="xs">
