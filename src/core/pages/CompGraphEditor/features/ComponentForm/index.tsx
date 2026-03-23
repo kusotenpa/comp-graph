@@ -120,16 +120,15 @@ export const ComponentForm = ({ graph, onGraphChange, editingComponentId, onEdit
           minRows={2}
         />
 
-        <Group>
-          <Button onClick={handleSubmit} style={{ flex: 1 }}>
-            {editingComponentId ? 'Update' : 'Add Component'}
+        {editingComponentId ? (
+          <Button variant="default" onClick={handleCancel} fullWidth>
+            Done
           </Button>
-          {editingComponentId && (
-            <Button variant="default" onClick={handleCancel} style={{ flex: 1 }}>
-              Cancel
-            </Button>
-          )}
-        </Group>
+        ) : (
+          <Button onClick={handleSubmit} fullWidth>
+            Add Component
+          </Button>
+        )}
       </Stack>
     </Paper>
   )
