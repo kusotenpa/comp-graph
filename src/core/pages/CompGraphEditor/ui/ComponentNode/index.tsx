@@ -11,7 +11,15 @@ export const ComponentNode = memo(({ data }: Props) => {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <Paper p="md" shadow="sm" withBorder style={{ minWidth: 250 }}>
+      <Paper
+        p="md"
+        shadow="sm"
+        withBorder
+        style={{
+          minWidth: 250,
+          borderLeft: data.color ? `4px solid var(--mantine-color-${data.color}-6)` : undefined,
+        }}
+      >
         <Stack gap="xs">
           <Title order={4}>{data.name}</Title>
           {data.props.length > 0 && (
@@ -25,6 +33,11 @@ export const ComponentNode = memo(({ data }: Props) => {
                 </Text>
               ))}
             </Stack>
+          )}
+          {data.memo && (
+            <Text size="xs" c="dimmed" style={{ whiteSpace: 'pre-wrap' }}>
+              {data.memo}
+            </Text>
           )}
         </Stack>
       </Paper>

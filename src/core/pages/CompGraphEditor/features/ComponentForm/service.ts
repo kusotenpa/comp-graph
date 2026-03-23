@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { ComponentGraph, PropDefinition } from '@/core/pages/CompGraphEditor/models/componentGraph'
+import type { ComponentGraph, NodeColor, PropDefinition } from '@/core/pages/CompGraphEditor/models/componentGraph'
 import { addComponent, updateComponent } from '@/core/pages/CompGraphEditor/models/componentGraph'
 
 type Props = {
@@ -12,6 +12,8 @@ type Props = {
 export const useService = ({ graph, onGraphChange, editingComponentId, onEditComplete }: Props) => {
   const [componentName, setComponentName] = useState('')
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null)
+  const [selectedColor, setSelectedColor] = useState<NodeColor | null>(null)
+  const [memo, setMemo] = useState('')
   const [props, setProps] = useState<PropDefinition[]>([{ name: '', type: '' }])
 
   useEffect(() => {
@@ -20,6 +22,8 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
       if (component) {
         setComponentName(component.name)
         setSelectedParentId(component.parentId)
+        setSelectedColor(component.color ?? null)
+        setMemo(component.memo ?? '')
         setProps(component.props.length > 0 ? component.props : [{ name: '', type: '' }])
       }
     }
@@ -55,6 +59,8 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
         name: componentName,
         props: filteredProps,
         parentId: selectedParentId,
+        color: selectedColor,
+        memo: memo.trim() || null,
       })
       onEditComplete?.()
     } else {
@@ -63,6 +69,8 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
         name: componentName,
         props: filteredProps,
         parentId: selectedParentId,
+        color: selectedColor,
+        memo: memo.trim() || null,
       }
       updatedGraph = addComponent(graph, newComponent)
     }
@@ -72,6 +80,8 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
     if (!editingComponentId) {
       setComponentName('')
       setSelectedParentId(null)
+      setSelectedColor(null)
+      setMemo('')
       setProps([{ name: '', type: '' }])
     }
   }
@@ -79,6 +89,8 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
   const handleCancel = () => {
     setComponentName('')
     setSelectedParentId(null)
+    setSelectedColor(null)
+    setMemo('')
     setProps([{ name: '', type: '' }])
     onEditComplete?.()
   }
@@ -88,6 +100,10 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
     setComponentName,
     selectedParentId,
     setSelectedParentId,
+    selectedColor,
+    setSelectedColor,
+    memo,
+    setMemo,
     props,
     addPropField,
     updateProp,

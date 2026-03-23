@@ -1,7 +1,8 @@
-import { Button, TextInput, Select, Stack, Group, ActionIcon, Title, Paper } from '@mantine/core'
+import { Button, TextInput, Textarea, Select, Stack, Group, ActionIcon, Title, Paper, ColorSwatch, Text, Tooltip } from '@mantine/core'
 import { IconPlus, IconTrash } from '@tabler/icons-react'
 import { useService } from './service'
 import type { ComponentGraph } from '@/core/pages/CompGraphEditor/models/componentGraph'
+import { NODE_COLORS } from '@/core/pages/CompGraphEditor/models/componentGraph'
 
 type Props = {
   graph: ComponentGraph
@@ -16,6 +17,10 @@ export const ComponentForm = ({ graph, onGraphChange, editingComponentId, onEdit
     setComponentName,
     selectedParentId,
     setSelectedParentId,
+    selectedColor,
+    setSelectedColor,
+    memo,
+    setMemo,
     props,
     addPropField,
     updateProp,
@@ -37,6 +42,36 @@ export const ComponentForm = ({ graph, onGraphChange, editingComponentId, onEdit
           onChange={(e) => setComponentName(e.currentTarget.value)}
           required
         />
+
+        <Stack gap="xs">
+          <Text size="sm" fw={500}>Color</Text>
+          <Group gap="xs">
+            <Tooltip label="None">
+              <ColorSwatch
+                color="transparent"
+                style={{
+                  cursor: 'pointer',
+                  border: selectedColor === null ? '2px solid var(--mantine-color-dark-4)' : '2px solid var(--mantine-color-gray-4)',
+                  outline: 'none',
+                }}
+                onClick={() => setSelectedColor(null)}
+              />
+            </Tooltip>
+            {NODE_COLORS.map((color) => (
+              <Tooltip key={color} label={color}>
+                <ColorSwatch
+                  color={`var(--mantine-color-${color}-6)`}
+                  style={{
+                    cursor: 'pointer',
+                    outline: selectedColor === color ? '2px solid var(--mantine-color-dark-4)' : 'none',
+                    outlineOffset: 2,
+                  }}
+                  onClick={() => setSelectedColor(color)}
+                />
+              </Tooltip>
+            ))}
+          </Group>
+        </Stack>
 
         <Select
           label="Parent Component"
@@ -75,6 +110,15 @@ export const ComponentForm = ({ graph, onGraphChange, editingComponentId, onEdit
             </Group>
           ))}
         </Stack>
+
+        <Textarea
+          label="Memo"
+          placeholder="Notes about this component..."
+          value={memo}
+          onChange={(e) => setMemo(e.currentTarget.value)}
+          autosize
+          minRows={2}
+        />
 
         <Group>
           <Button onClick={handleSubmit} style={{ flex: 1 }}>

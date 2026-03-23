@@ -1,10 +1,12 @@
 import dagre from 'dagre'
 import type { Node, Edge } from '@xyflow/react'
-import type { ComponentGraph, PropDefinition } from '@/core/pages/CompGraphEditor/models/componentGraph'
+import type { ComponentGraph, NodeColor, PropDefinition } from '@/core/pages/CompGraphEditor/models/componentGraph'
 
 export type FlowNodeData = {
   name: string
   props: PropDefinition[]
+  color?: NodeColor | null
+  memo?: string | null
 }
 
 export type FlowElements = {
@@ -23,6 +25,8 @@ export const graphToFlowElements = (graph: ComponentGraph): FlowElements => {
     data: {
       name: component.name,
       props: component.props,
+      color: component.color,
+      memo: component.memo,
     },
   }))
 

@@ -7,11 +7,15 @@ const propDefinitionSchema = z.object({
   type: z.string(),
 })
 
+const nodeColorSchema = z.enum(['blue', 'green', 'yellow', 'orange', 'red', 'violet'])
+
 const componentNodeSchema = z.object({
   id: z.string(),
   name: z.string(),
   props: z.array(propDefinitionSchema),
   parentId: z.string().nullable(),
+  color: nodeColorSchema.nullable().optional(),
+  memo: z.string().nullable().optional(),
 })
 
 const componentGraphSchema = z.object({

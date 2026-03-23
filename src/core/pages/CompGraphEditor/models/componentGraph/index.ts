@@ -1,6 +1,7 @@
 import type { ComponentGraph, ComponentNode, PropDefinition } from './types'
 
-export type { ComponentGraph, ComponentNode, PropDefinition } from './types'
+export type { ComponentGraph, ComponentNode, NodeColor, PropDefinition } from './types'
+export { NODE_COLORS } from './types'
 
 export const addComponent = (
   graph: ComponentGraph,
