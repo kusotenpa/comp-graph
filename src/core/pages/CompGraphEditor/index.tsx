@@ -5,16 +5,28 @@ import { useService } from './service'
 import { ComponentForm } from './features/ComponentForm'
 import { ComponentList } from './features/ComponentList'
 import { GraphVisualizer } from './features/GraphVisualizer'
-import { deleteComponent } from './models/componentGraph'
+import { addComponent, deleteComponent } from './models/componentGraph'
 import { useColorScheme } from '@/core/common/utils/colorScheme'
 
 export const CompGraphEditor = () => {
-  const { graph, setGraph, copyShareUrl, copied } = useService()
-  const [editingComponentId, setEditingComponentId] = useState<string | undefined>(undefined)
+  const { graph, setGraph, copyShareUrl, copied, initialEditingId } = useService()
+  const [editingComponentId, setEditingComponentId] = useState<string | undefined>(initialEditingId)
   const { colorScheme, toggleColorScheme } = useColorScheme()
   const sidebarRef = useRef<HTMLDivElement>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+
+  const cleanupEmptyComponent = (currentGraph: typeof graph): typeof graph => {
+    if (!editingComponentId) return currentGraph
+    const current = currentGraph.components.find((c) => c.id === editingComponentId)
+    if (current && !current.name.trim()) {
+      return deleteComponent(currentGraph, editingComponentId)
+    }
+    return currentGraph
+  }
 
   const handleEdit = (componentId: string) => {
+    if (componentId === editingComponentId) return
+    setGraph(cleanupEmptyComponent(graph))
     setEditingComponentId(componentId)
     sidebarRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -22,10 +34,20 @@ export const CompGraphEditor = () => {
   const handleDelete = (componentId: string) => {
     const updatedGraph = deleteComponent(graph, componentId)
     setGraph(updatedGraph)
+    if (editingComponentId === componentId) setEditingComponentId(undefined)
   }
 
-  const handleEditComplete = () => {
-    setEditingComponentId(undefined)
+  const handleAddComponent = () => {
+    const newId = Date.now().toString()
+    const cleanedGraph = cleanupEmptyComponent(graph)
+    setGraph(addComponent(cleanedGraph, { id: newId, name: '', props: [], parentId: null, color: null, memo: null }))
+    setEditingComponentId(newId)
+    sidebarRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+    setTimeout(() => nameInputRef.current?.focus(), 0)
+  }
+
+  const handleCanvasClick = () => {
+    handleAddComponent()
   }
 
   return (
@@ -59,13 +81,13 @@ export const CompGraphEditor = () => {
               graph={graph}
               onGraphChange={setGraph}
               editingComponentId={editingComponentId}
-              onEditComplete={handleEditComplete}
+              nameInputRef={nameInputRef}
             />
-            <ComponentList graph={graph} onEdit={handleEdit} onDelete={handleDelete} />
+            <ComponentList graph={graph} onEdit={handleEdit} onDelete={handleDelete} onAdd={handleAddComponent} />
           </Stack>
         </Grid.Col>
         <Grid.Col span={8} style={{ height: 'calc(100vh - 100px)' }}>
-          <GraphVisualizer graph={graph} onNodeClick={handleEdit} />
+          <GraphVisualizer graph={graph} onNodeClick={handleEdit} onCanvasClick={handleCanvasClick} />
         </Grid.Col>
       </Grid>
     </Container>

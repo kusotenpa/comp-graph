@@ -1,18 +1,24 @@
-import { Paper, Title, Stack, Group, ActionIcon, Text, Badge } from '@mantine/core'
-import { IconEdit, IconTrash } from '@tabler/icons-react'
+import { Paper, Title, Stack, Group, ActionIcon, Text, Badge, Button } from '@mantine/core'
+import { IconEdit, IconTrash, IconPlus } from '@tabler/icons-react'
 import type { ComponentGraph } from '@/core/pages/CompGraphEditor/models/componentGraph'
 
 type Props = {
   graph: ComponentGraph
   onEdit: (componentId: string) => void
   onDelete: (componentId: string) => void
+  onAdd: () => void
 }
 
-export const ComponentList = ({ graph, onEdit, onDelete }: Props) => {
+export const ComponentList = ({ graph, onEdit, onDelete, onAdd }: Props) => {
   return (
     <Paper p="md" withBorder>
       <Stack>
-        <Title order={3}>Component List</Title>
+        <Group justify="space-between">
+          <Title order={3}>Component List</Title>
+          <Button size="xs" leftSection={<IconPlus size={16} />} onClick={onAdd}>
+            New
+          </Button>
+        </Group>
 
         {graph.components.length === 0 ? (
           <Text c="dimmed" size="sm">
@@ -21,7 +27,12 @@ export const ComponentList = ({ graph, onEdit, onDelete }: Props) => {
         ) : (
           <Stack gap="xs">
             {graph.components.map((component) => (
-              <Paper key={component.id} p="sm" withBorder>
+              <Paper
+                key={component.id}
+                p="sm"
+                withBorder
+                style={{ borderLeft: component.color ? `4px solid var(--mantine-color-${component.color}-6)` : undefined }}
+              >
                 <Group justify="space-between">
                   <Stack gap={4}>
                     <Group gap="xs">

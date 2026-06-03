@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ComponentGraph, NodeColor, PropDefinition } from '@/core/pages/CompGraphEditor/models/componentGraph'
-import { addComponent, updateComponent } from '@/core/pages/CompGraphEditor/models/componentGraph'
+import { updateComponent } from '@/core/pages/CompGraphEditor/models/componentGraph'
 
 type Props = {
   graph: ComponentGraph
   onGraphChange: (graph: ComponentGraph) => void
   editingComponentId?: string
-  onEditComplete?: () => void
 }
 
-export const useService = ({ graph, onGraphChange, editingComponentId, onEditComplete }: Props) => {
+export const useService = ({ graph, onGraphChange, editingComponentId }: Props) => {
   const [componentName, setComponentName] = useState('')
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null)
   const [selectedColor, setSelectedColor] = useState<NodeColor | null>(null)
@@ -19,7 +18,6 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
   const graphRef = useRef(graph)
   graphRef.current = graph
 
-  // 編集対象が切り替わった時だけフォームを同期する
   useEffect(() => {
     if (editingComponentId) {
       const component = graphRef.current.components.find((c) => c.id === editingComponentId)
@@ -30,11 +28,16 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
         setMemo(component.memo ?? '')
         setProps(component.props.length > 0 ? component.props : [{ name: '', type: '' }])
       }
+    } else {
+      setComponentName('')
+      setSelectedParentId(null)
+      setSelectedColor(null)
+      setMemo('')
+      setProps([{ name: '', type: '' }])
     }
   }, [editingComponentId])
 
-  // 編集中はフィールド変更をグラフに即時反映する
-  const liveUpdate = (overrides: {
+  const save = (overrides: {
     name?: string
     parentId?: string | null
     color?: NodeColor | null
@@ -42,88 +45,56 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
     props?: PropDefinition[]
   }) => {
     if (!editingComponentId) return
-    const name = overrides.name ?? componentName
-    if (!name.trim()) return
     const currentProps = overrides.props ?? props
     const filteredProps = currentProps.filter((p) => p.name.trim() !== '' && p.type.trim() !== '')
-    const updatedGraph = updateComponent(graphRef.current, editingComponentId, {
-      name,
-      props: filteredProps,
-      parentId: overrides.parentId !== undefined ? overrides.parentId : selectedParentId,
-      color: overrides.color !== undefined ? overrides.color : selectedColor,
-      memo: (overrides.memo ?? memo).trim() || null,
-    })
-    onGraphChange(updatedGraph)
+    onGraphChange(
+      updateComponent(graphRef.current, editingComponentId, {
+        name: overrides.name ?? componentName,
+        props: filteredProps,
+        parentId: overrides.parentId !== undefined ? overrides.parentId : selectedParentId,
+        color: overrides.color !== undefined ? overrides.color : selectedColor,
+        memo: (overrides.memo ?? memo).trim() || null,
+      }),
+    )
   }
 
   const handleSetComponentName = (name: string) => {
     setComponentName(name)
-    liveUpdate({ name })
+    save({ name })
   }
 
   const handleSetSelectedParentId = (parentId: string | null) => {
     setSelectedParentId(parentId)
-    liveUpdate({ parentId })
+    save({ parentId })
   }
 
   const handleSetSelectedColor = (color: NodeColor | null) => {
     setSelectedColor(color)
-    liveUpdate({ color })
+    save({ color })
   }
 
   const handleSetMemo = (memo: string) => {
     setMemo(memo)
-    liveUpdate({ memo })
+    save({ memo })
   }
 
   const addPropField = () => {
     const updated = [...props, { name: '', type: '' }]
     setProps(updated)
-    liveUpdate({ props: updated })
+    save({ props: updated })
   }
 
   const updateProp = (index: number, field: 'name' | 'type', value: string) => {
     const updated = [...props]
     updated[index] = { ...updated[index], [field]: value }
     setProps(updated)
-    liveUpdate({ props: updated })
+    save({ props: updated })
   }
 
   const removeProp = (index: number) => {
     const updated = props.filter((_, i) => i !== index)
     setProps(updated)
-    liveUpdate({ props: updated })
-  }
-
-  const handleSubmit = () => {
-    if (!componentName.trim()) return
-
-    const filteredProps = props.filter(
-      (p) => p.name && p.name.trim() !== '' && p.type && p.type.trim() !== '',
-    )
-    const newComponent = {
-      id: Date.now().toString(),
-      name: componentName,
-      props: filteredProps,
-      parentId: selectedParentId,
-      color: selectedColor,
-      memo: memo.trim() || null,
-    }
-    onGraphChange(addComponent(graphRef.current, newComponent))
-    setComponentName('')
-    setSelectedParentId(null)
-    setSelectedColor(null)
-    setMemo('')
-    setProps([{ name: '', type: '' }])
-  }
-
-  const handleCancel = () => {
-    setComponentName('')
-    setSelectedParentId(null)
-    setSelectedColor(null)
-    setMemo('')
-    setProps([{ name: '', type: '' }])
-    onEditComplete?.()
+    save({ props: updated })
   }
 
   return {
@@ -139,8 +110,6 @@ export const useService = ({ graph, onGraphChange, editingComponentId, onEditCom
     addPropField,
     updateProp,
     removeProp,
-    handleSubmit,
-    handleCancel,
     availableParents: graph.components,
   }
 }

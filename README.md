@@ -1,5 +1,7 @@
 # CompGraph
 
+https://kusotenpa.github.io/comp-graph
+
 A React component architecture visualizer that helps you design and share component hierarchies.
 
 ## Features

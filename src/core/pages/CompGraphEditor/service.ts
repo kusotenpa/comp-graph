@@ -3,15 +3,20 @@ import type { ComponentGraph } from './models/componentGraph'
 import { compressGraph, decompressGraph } from '@/core/common/utils/urlPersistence'
 
 export const useService = () => {
-  const [graph, setGraph] = useState<ComponentGraph>(() => {
+  const [{ initialGraph, initialEditingId }] = useState(() => {
     const params = new URLSearchParams(window.location.search)
     const data = params.get('data')
     if (data) {
-      const decompressed = decompressGraph(data)
-      return decompressed ?? { components: [] }
+      return { initialGraph: decompressGraph(data) ?? { components: [] }, initialEditingId: undefined as string | undefined }
     }
-    return { components: [] }
+    const newId = Date.now().toString()
+    return {
+      initialGraph: { components: [{ id: newId, name: '', props: [], parentId: null, color: null, memo: null }] } as ComponentGraph,
+      initialEditingId: newId,
+    }
   })
+
+  const [graph, setGraph] = useState<ComponentGraph>(initialGraph)
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -33,5 +38,6 @@ export const useService = () => {
     setGraph,
     copyShareUrl,
     copied,
+    initialEditingId,
   }
 }

@@ -9,13 +9,14 @@ import { useMemo } from 'react'
 type Props = {
   graph: ComponentGraph
   onNodeClick?: (componentId: string) => void
+  onCanvasClick?: () => void
 }
 
 const nodeTypes = {
   componentNode: ComponentNode,
 }
 
-export const GraphVisualizer = ({ graph, onNodeClick }: Props) => {
+export const GraphVisualizer = ({ graph, onNodeClick, onCanvasClick }: Props) => {
   const { nodes, edges } = useMemo(() => graphToFlowElements(graph), [graph])
 
   return (
@@ -28,6 +29,7 @@ export const GraphVisualizer = ({ graph, onNodeClick }: Props) => {
         minZoom={0.1}
         maxZoom={2}
         onNodeClick={onNodeClick ? (_e, node) => onNodeClick(node.id) : undefined}
+        onPaneClick={onCanvasClick}
       >
         <Background />
         <Controls />
